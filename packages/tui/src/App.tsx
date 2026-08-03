@@ -13,9 +13,9 @@ import {
   saveConfig,
   type JunoEventBus,
   type ChatMessage,
-} from "@juno/core";
-import { startTimer, scheduleReminder } from "@juno/automation";
-import { AiEngine, runAiTurn, type AiEngineLike } from "@juno/ai";
+} from "@euthenia/core";
+import { startTimer, scheduleReminder } from "@euthenia/automation";
+import { AiEngine, runAiTurn, type AiEngineLike } from "@euthenia/ai";
 import { useApp } from "./store.js";
 
 const SIDEBAR_W = 26;

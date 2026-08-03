@@ -1,7 +1,7 @@
 {
-  "name": "@juno/cli",
+  "name": "@euthenia/juno",
   "version": "0.2.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -26,17 +26,18 @@
     "start": "node dist/bin/juno.js"
   },
   "dependencies": {
-    "@juno/ai": "*",
-    "@juno/core": "*",
-    "@juno/automation": "*",
-    "@juno/tui": "*",
     "commander": "^13.0.0",
-    "chalk": "^5.4.0"
+    "chalk": "^5.4.0",
+    "@euthenia/ai": "^0.2.0",
+    "@euthenia/core": "^0.2.0",
+    "@euthenia/automation": "^0.2.0",
+    "@euthenia/tui": "^0.2.0"
   },
   "devDependencies": {
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "vitest": "^3.0.0"
-  }
+  },
+  "license": "UNLICENSED"
 }

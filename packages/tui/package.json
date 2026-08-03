@@ -1,7 +1,7 @@
 {
-  "name": "@juno/tui",
-  "version": "0.2.0",
-  "private": true,
+  "name": "@euthenia/tui",
+  "version": "0.2.1",
+  "private": false,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -18,12 +18,12 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@juno/ai": "*",
-    "@juno/automation": "*",
-    "@juno/core": "*",
     "ink": "^7.1.1",
     "react": "^19.2.0",
-    "zustand": "^5.0.0"
+    "zustand": "^5.0.0",
+    "@euthenia/ai": "^0.2.0",
+    "@euthenia/automation": "^0.2.0",
+    "@euthenia/core": "^0.2.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",
@@ -31,5 +31,9 @@
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "vitest": "^3.0.0"
-  }
+  },
+  "license": "UNLICENSED",
+  "files": [
+    "dist"
+  ]
 }

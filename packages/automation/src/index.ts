@@ -3,4 +3,4 @@ export { runWorkflow, type AutomationStep, type StepResult, type WorkflowOptions
 export { parseCron, cronMatches, type CronFields } from "./cron.js";
 export { withBackoff, isPermanentError, humanDuration, type BackoffPolicy } from "./backoff.js";
 
-export type { JunoEventBus } from "@juno/core";
+export type { JunoEventBus } from "@euthenia/core";

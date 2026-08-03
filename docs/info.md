@@ -59,7 +59,7 @@ parser, or answers with optional DeepSeek AI.
 
 ### Quality / release
 - Build: `tsc --noEmit`, ESLint 9, Prettier, Husky + lint-staged, GitHub Actions CI.
-- Install: `npm install` (dev), `npm i -g @juno-cli/juno` (planned), standalone binaries.
+- Install: `npm install` (dev), `npm i -g @euthenia/juno` (planned), standalone binaries.
 
 ### Distribution & licensing
 - Public repo for visibility, but all rights reserved (UNLICENSED). See [LICENSE.md](../LICENSE.md).

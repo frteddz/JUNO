@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ChatMessage } from "@juno/core";
+import type { ChatMessage } from "@euthenia/core";
 
 export type ThemeMode = "dark" | "light";
 

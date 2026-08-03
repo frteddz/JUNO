@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { buildServer } from "../src/server";
-import { createDispatcher } from "@juno/core";
+import { createDispatcher } from "@euthenia/core";
 import type { FastifyInstance } from "fastify";
 import os from "node:os";
 import { mkdtempSync, rmSync } from "node:fs";

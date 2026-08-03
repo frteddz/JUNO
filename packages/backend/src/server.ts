@@ -11,7 +11,7 @@ import {
   getSystemInfo,
   type JunoEventBus,
   type Dispatcher,
-} from "@juno/core";
+} from "@euthenia/core";
 import { generateToken } from "./auth.js";
 
 export type BackendOptions = {

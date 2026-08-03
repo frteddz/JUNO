@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { getStore, type JunoEventBus, type ReminderTask, type TimerTask } from "@juno/core";
+import { getStore, type JunoEventBus, type ReminderTask, type TimerTask } from "@euthenia/core";
 
 export type AutomationOptions = {
   bus?: JunoEventBus;

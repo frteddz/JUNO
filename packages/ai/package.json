@@ -1,7 +1,7 @@
 {
-  "name": "@juno/ai",
-  "version": "0.2.0",
-  "private": true,
+  "name": "@euthenia/ai",
+  "version": "0.2.1",
+  "private": false,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -18,14 +18,18 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@juno/automation": "*",
-    "@juno/core": "*",
-    "playwright": "1.62.1"
+    "playwright": "1.62.1",
+    "@euthenia/automation": "^0.2.0",
+    "@euthenia/core": "^0.2.0"
   },
   "devDependencies": {
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "vitest": "^3.0.0"
-  }
+  },
+  "license": "UNLICENSED",
+  "files": [
+    "dist"
+  ]
 }

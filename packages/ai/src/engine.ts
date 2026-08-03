@@ -6,8 +6,8 @@ import {
   getConfig,
   createDispatcher,
   type JunoConfig,
-} from "@juno/core";
-import { startTimer, scheduleReminder } from "@juno/automation";
+} from "@euthenia/core";
+import { startTimer, scheduleReminder } from "@euthenia/automation";
 import { launchDeepSeek } from "./launch.js";
 import {
   dismissBanners,

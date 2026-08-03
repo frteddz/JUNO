@@ -125,10 +125,10 @@ juno read package.json --json
 | Method | Command |
 | --- | --- |
 | **From source (dev)** | `git clone …` + `npm install` + `cd packages/cli && npm link` |
-| **Global npm (stable)** | `npm install -g @juno-cli/juno` <sup>1</sup> |
+| **Global npm (stable)** | `npm install -g @euthenia/juno` <sup>1</sup> |
 | **Standalone binaries** | Linux / macOS / Windows executable <sup>2</sup> |
 
-<sup>1</sup> Planned under the `@juno-cli` scope. <br>
+<sup>1</sup> Published under the `@euthenia` scope. <br>
 <sup>2</sup> On the roadmap - see [Milestones](docs/milestone.md).
 
 After a global install, run it anywhere:

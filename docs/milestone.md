@@ -33,7 +33,7 @@ Roadmap for JUNO, from first runnable skeleton to a distributable local assistan
 - [ ] Notifications (terminal + optional OS-level).
 
 ## M4 - Distribution
-- [ ] `npm i -g @juno-cli/juno` stable release.
+- [ ] `npm i -g @euthenia/juno` stable release.
 - [ ] Standalone single-file binaries for Linux, macOS, Windows.
 - [ ] Signed releases + GitHub Releases with changelog.
 

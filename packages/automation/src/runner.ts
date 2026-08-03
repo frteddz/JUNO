@@ -1,4 +1,4 @@
-import { parseCommand, type ActionResult, type Dispatcher, type ParsedIntent } from "@juno/core";
+import { parseCommand, type ActionResult, type Dispatcher, type ParsedIntent } from "@euthenia/core";
 import { humanDuration, isPermanentError, type BackoffPolicy } from "./backoff.js";
 
 export type AutomationStep =

@@ -37,7 +37,7 @@ Live status of the JUNO build.
 - Plugin loading from user plugin directory.
 - WebSocket event streaming wiring between backend and clients.
 - Recurring cron workflows surfaced in the UI.
-- Packaging into `@juno-cli/juno` and standalone binaries.
+- Packaging into `@euthenia/juno` and standalone binaries.
 
 ## Known issues / notes
 - TUI uses `ink-markdown`; heavy Markdown documents may need paging later.

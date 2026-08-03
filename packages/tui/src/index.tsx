@@ -1,6 +1,6 @@
 import { render } from "ink";
 import React from "react";
-import { createEventBus, getConfig } from "@juno/core";
+import { createEventBus, getConfig } from "@euthenia/core";
 import { App } from "./App.js";
 import { useApp } from "./store.js";
 

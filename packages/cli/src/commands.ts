@@ -13,9 +13,9 @@ import {
   closeApp,
   createEventBus,
   type JunoEventBus,
-} from "@juno/core";
-import { startTimer, scheduleReminder } from "@juno/automation";
-import { AiEngine, runAiTurn } from "@juno/ai";
+} from "@euthenia/core";
+import { startTimer, scheduleReminder } from "@euthenia/automation";
+import { AiEngine, runAiTurn } from "@euthenia/ai";
 
 export function makeProgram(bus?: JunoEventBus): Command {
   const eventBus = bus ?? createEventBus();

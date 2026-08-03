@@ -14,14 +14,14 @@ npm run dev -- "open firefox"
 ## 2. Global npm package (stable)
 
 ```bash
-npm install -g @juno-cli/juno
+npm install -g @euthenia/juno
 juno "open firefox"
 ```
 
 Update:
 
 ```bash
-npm update -g @juno-cli/juno
+npm update -g @euthenia/juno
 ```
 
 ## 3. Standalone binaries (coming in M4)

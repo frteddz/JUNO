@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { makeProgram, runCommand, CliError } from "../index.js";
-import { createEventBus } from "@juno/core";
+import { createEventBus } from "@euthenia/core";
 
 const rawArgs = process.argv.slice(2);
 
@@ -25,7 +25,7 @@ export const SUBCOMMANDS = new Set([
 
 async function main(): Promise<void> {
   if (rawArgs.length === 0 || rawArgs[0] === "--run" || rawArgs[0] === "tui") {
-    const { startTui } = await import("@juno/tui");
+    const { startTui } = await import("@euthenia/tui");
     await startTui();
     return;
   }

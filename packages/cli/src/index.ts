@@ -1,2 +1,2 @@
 export { makeProgram, runCommand, CliError } from "./commands.js";
-export type { JunoEventBus } from "@juno/core";
+export type { JunoEventBus } from "@euthenia/core";

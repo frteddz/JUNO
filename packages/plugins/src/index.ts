@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { JunoEventBus, JunoStore } from "@juno/core";
+import type { JunoEventBus, JunoStore } from "@euthenia/core";
 
 export const PluginManifestSchema = z.object({
   name: z.string().min(1),

@@ -433,21 +433,19 @@
         <div class="install">
           <div>
             <p class="body">
-              Clone and build it - <code>juno</code> lands on your PATH in about a minute.
+              Install globally from npm - <code>juno</code> lands on your PATH, ready in about a minute.
             </p>
             <div class="codeblock">
               <div class="winbar"><span>linux · mac · windows</span></div>
-              <pre><span class="cm"># clone, install, link the CLI:</span>
-git clone https://github.com/frteddz/JUNO.git
-cd JUNO && npm install
-cd packages/cli && npm link
+              <pre><span class="cm"># install globally, then sign in to the AI once:</span>
+npm install -g @euthenia/juno
 juno auth
 juno <span class="c1">"open firefox"</span></pre>
             </div>
             <ul class="notes">
               <li><span class="k">needs:</span><span>node ≥ 24, npm ≥ 11</span></li>
               <li><span class="k">no AI:</span><span>juno config set aiProvider off</span></li>
-              <li><span class="k">npm publish:</span><span>on the roadmap - from source for now</span></li>
+              <li><span class="k">from source:</span><span>git clone + npm install, then cd packages/cli \&\& npm link</span></li>
             </ul>
           </div>
 
