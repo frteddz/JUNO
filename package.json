@@ -5,6 +5,7 @@
   "description": "JUNO - Just Understands Natural Orders. A local-first, non-AI command assistant for your terminal.",
   "license": "UNLICENSED",
   "type": "module",
+  "bin": { "juno": "./packages/cli/dist/bin/juno.js" },
   "workspaces": [
     "packages/*"
   ],

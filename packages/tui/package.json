@@ -5,7 +5,12 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsup src/index.tsx --format esm --dts --clean",
     "dev": "tsx src/index.tsx",
@@ -13,10 +18,9 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@juno/core": "*",
     "@juno/automation": "*",
+    "@juno/core": "*",
     "ink": "^7.1.1",
-    "ink-markdown": "^1.0.4",
     "react": "^19.2.0",
     "zustand": "^5.0.0"
   },

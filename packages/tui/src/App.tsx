@@ -1,10 +1,7 @@
 import { Box, Text, useInput } from "ink";
 import TextInput from "ink-text-input";
 import { useEffect, type ReactElement } from "react";
-import BaseMarkdown from "ink-markdown";
-
-type MdProps = { children: string; [k: string]: unknown };
-const Markdown = BaseMarkdown as unknown as (props: MdProps) => ReactElement;
+import { Markdown } from "./markdown.js";
 import {
   getStore,
   createDispatcher,
