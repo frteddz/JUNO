@@ -72,6 +72,7 @@ export type JunoConfig = {
   confirmDestructive: boolean;
   animate: boolean;
   logLevel: "debug" | "info" | "warn" | "error";
+  aiProvider: "deepseek" | "off";
 };
 
 export type Dispatcher = (intent: ParsedIntent) => Promise<ActionResult> | ActionResult;
@@ -86,4 +87,5 @@ export const DEFAULT_CONFIG: JunoConfig = {
   confirmDestructive: true,
   animate: true,
   logLevel: "info",
+  aiProvider: "deepseek",
 };

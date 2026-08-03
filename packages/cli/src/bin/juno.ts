@@ -14,6 +14,7 @@ export const SUBCOMMANDS = new Set([
   "config-get",
   "config-set",
   "say",
+  "auth",
   "help",
   "--help",
   "-h",

@@ -11,6 +11,7 @@ type AppState = {
   accent: string;
   animate: boolean;
   addMessage: (msg: ChatMessage) => void;
+  updateMessage: (id: string, patch: Partial<ChatMessage>) => void;
   clear: () => void;
   setInput: (s: string) => void;
   setBusy: (b: boolean) => void;
@@ -27,6 +28,8 @@ export const useApp = create<AppState>((set) => ({
   accent: "#d4af37",
   animate: true,
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
+  updateMessage: (id, patch) =>
+    set((s) => ({ messages: s.messages.map((m) => (m.id === id ? { ...m, ...patch } : m)) })),
   clear: () => set({ messages: [] }),
   setInput: (input) => set({ input }),
   setBusy: (busy) => set({ busy }),

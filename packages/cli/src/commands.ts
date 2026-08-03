@@ -12,9 +12,10 @@ import {
   openApp,
   closeApp,
   createEventBus,
+  type JunoEventBus,
 } from "@juno/core";
 import { startTimer, scheduleReminder } from "@juno/automation";
-import type { JunoEventBus } from "@juno/core";
+import { AiEngine, runAiTurn } from "@juno/ai";
 
 export function makeProgram(bus?: JunoEventBus): Command {
   const eventBus = bus ?? createEventBus();
@@ -108,6 +109,19 @@ export function makeProgram(bus?: JunoEventBus): Command {
     });
 
   program
+    .command("auth")
+    .description("Sign in to DeepSeek in a browser window (required once for AI mode)")
+    .action(async () => {
+      const engine = new AiEngine(false);
+      await engine.beginVisibleAuth();
+      console.log(chalk.cyan("Sign in to DeepSeek in the opened browser window, then come back here."));
+      await engine.waitForSignedInAuth();
+      const account = await engine.whoami();
+      console.log(chalk.green(`Signed in as ${account ?? "your DeepSeek account"}. AI is ready.`));
+      await engine.close();
+    });
+
+  program
     .command("say <text>")
     .description("Execute a natural-language command")
     .action(async (text: string) => {
@@ -122,6 +136,32 @@ async function runCommand(program: Command, bus: JunoEventBus, text: string): Pr
   const sessionId = store.createSession().id;
   const ts = new Date().toISOString();
   store.addMessage(sessionId, { id: crypto.randomUUID(), role: "user", content: text, ts });
+
+  const config = await getConfig();
+  if (config.aiProvider === "deepseek") {
+    const engine = new AiEngine(true);
+    try {
+      let lastText = "";
+      const result = await runAiTurn(engine, text, bus, (patch) => {
+        if (patch.phase === "generating" || patch.phase === "done") {
+          lastText = patch.text;
+        }
+      });
+      if (result.action) {
+        console.log(result.ok ? chalk.green(result.message) : chalk.red(result.message));
+      } else {
+        console.log(chalk.green(result.message ?? lastText));
+      }
+    } catch (err) {
+      console.error(
+        chalk.red(`AI unavailable: ${err instanceof Error ? err.message : String(err)}\nRun \`juno auth\` to sign in.`),
+      );
+      throw new CliError("AI unavailable");
+    } finally {
+      await engine.close().catch(() => {});
+    }
+    return;
+  }
 
   const parsed = parseCommand(text);
   if (!parsed.ok) {

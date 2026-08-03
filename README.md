@@ -62,10 +62,30 @@ juno --help          # list subcommands
 juno --version       # show version
 ```
 
-## Available without an AI
+## AI mode
 
-JUNO does **not** require an AI provider or API key. It uses a deterministic command parser, so
-it works entirely offline out of the box.
+JUNO can answer anything with DeepSeek (chat.deepseek.com), exactly like Cedrus does. Every message goes through the AI first; it either replies conversationally or returns a local action (open app, timer, reminder, find file, math, system info) that JUNO executes on your machine. If the AI is unavailable (no sign-in, busy), JUNO falls back to its deterministic parser so nothing breaks.
+
+Set it up once:
+
+```bash
+juno auth                 # opens a browser to sign in to DeepSeek (free account)
+juno "what is the capital of France?"
+```
+
+```bash
+juno "open firefox and search ram prices"
+juno "set a timer for 10m"
+juno "find mynotes.txt on my pc"
+```
+
+## Offline mode (no AI)
+
+JUNO also works fully offline with a deterministic command parser, no AI provider or API key:
+
+```bash
+juno config set aiProvider off
+```
 
 ```bash
 juno "open firefox"
@@ -78,7 +98,7 @@ juno "show system info"
 juno "what is 12 * 8 + 3?"
 ```
 
-You can also use classic subcommands:
+You can also use classic subcommands (offline mode):
 
 ```bash
 juno open firefox
@@ -133,6 +153,7 @@ Husky + lint-staged run automatically on commit.
 ```text
 JUNO/
 ├── packages/
+│   ├── ai/          # DeepSeek engine (browser session, streaming, action protocol)
 │   ├── core/        # Types, natural-language parser, dispatcher, SQLite store, event bus
 │   ├── cli/         # Commander entrypoint (natural language + subcommands)
 │   ├── tui/         # React + Ink terminal interface

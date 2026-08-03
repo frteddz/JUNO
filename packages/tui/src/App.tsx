@@ -11,9 +11,17 @@ import {
   createMessage,
   createEventBus,
   type JunoEventBus,
+  getConfig,
 } from "@juno/core";
 import { startTimer, scheduleReminder } from "@juno/automation";
+import { AiEngine, runAiTurn, type AiEngineLike } from "@juno/ai";
 import { useApp } from "./store.js";
+
+let aiEngine: AiEngineLike | null = null;
+
+process.once("exit", () => {
+  if (aiEngine) void aiEngine.close();
+});
 
 type Props = { bus: JunoEventBus };
 
@@ -134,32 +142,74 @@ function CommandBar(): ReactElement {
 
 async function run(text: string): Promise<void> {
   const addMessage = useApp.getState().addMessage;
+  const updateMessage = useApp.getState().updateMessage;
   const sessionId = getStore().createSession().id;
+  const streamId = crypto.randomUUID();
+  addMessage(createMessage(sessionId, "assistant", ""));
+
+  const config = await getConfig();
+  if (config.aiProvider === "deepseek") {
+    const engine = getAiEngine();
+    try {
+      const result = await runAiTurn(engine, text, createEventBus(), (patch) => {
+        if (patch.phase === "generating" || patch.phase === "done") {
+          updateMessage(streamId, { content: patch.text });
+        }
+      });
+      if (result.action) {
+        updateMessage(streamId, { content: result.message });
+      }
+      return;
+    } catch (err) {
+      updateMessage(streamId, {
+        content: err instanceof Error ? `AI unavailable: ${err.message}` : String(err),
+      });
+    }
+    return;
+  }
+
+  await runDeterministic(text, sessionId, streamId);
+}
+
+async function runDeterministic(
+  text: string,
+  sessionId: string,
+  streamId: string,
+): Promise<void> {
+  const addMessage = useApp.getState().addMessage;
+  const updateMessage = useApp.getState().updateMessage;
   const parsed = parseCommand(text);
 
   if (!parsed.ok) {
-    addMessage(createMessage(sessionId, "system", parsed.error));
+    updateMessage(streamId, { content: parsed.error });
     return;
   }
 
   if (parsed.intent.intent === "timer") {
     const timer = startTimer({ durationMs: parsed.intent.durationMs, label: parsed.intent.label }, createEventBus());
-    addMessage(createMessage(sessionId, "assistant", `Timer set (${timer.id.slice(0, 8)}): ${describeIntent(parsed.intent)}`));
+    updateMessage(streamId, { content: `Timer set (${timer.id.slice(0, 8)}): ${describeIntent(parsed.intent)}` });
     return;
   }
   if (parsed.intent.intent === "reminder") {
     const r = scheduleReminder({ at: parsed.intent.at, label: parsed.intent.label }, createEventBus());
-    addMessage(createMessage(sessionId, "assistant", `Reminder set (${r.id.slice(0, 8)}): ${describeIntent(parsed.intent)}`));
+    updateMessage(streamId, { content: `Reminder set (${r.id.slice(0, 8)}): ${describeIntent(parsed.intent)}` });
     return;
   }
 
   const dispatcher = createDispatcher();
   const result = await dispatcher(parsed.intent);
-  addMessage(createMessage(sessionId, "assistant", result.message));
+  updateMessage(streamId, { content: result.message });
   if (result.data && typeof result.data === "object" && "entries" in result.data) {
     const entries = result.data.entries as Array<{ name: string; type: string }>;
     addMessage(createMessage(sessionId, "assistant", entries.map((e) => `${e.type === "dir" ? "DIR " : "FILE"}  ${e.name}`).join("\n")));
   }
+}
+
+function getAiEngine(): AiEngineLike {
+  if (!aiEngine) {
+    aiEngine = new AiEngine(true);
+  }
+  return aiEngine;
 }
 
 function shortId(id: string): string {

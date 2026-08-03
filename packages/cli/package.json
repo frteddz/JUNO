@@ -17,6 +17,7 @@
     "start": "node dist/bin/juno.js"
   },
   "dependencies": {
+    "@juno/ai": "*",
     "@juno/core": "*",
     "@juno/automation": "*",
     "@juno/tui": "*",
