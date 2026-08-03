@@ -11,6 +11,7 @@
   "scripts": {
     "build": "tsup src/index.ts src/bin/juno.ts --format esm --dts --clean",
     "dev": "tsx src/bin/juno.ts",
+    "tui": "tsx src/bin/juno.ts tui",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "start": "node dist/bin/juno.js"

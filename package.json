@@ -12,6 +12,7 @@
     "build": "npm run build --workspaces",
     "dev": "npm run dev --workspace @juno/cli",
     "start": "npm run start --workspace @juno/cli",
+    "tui": "npm run tui --workspace @juno/cli",
     "typecheck": "npm run build --workspace @juno/core && npm run build --workspace @juno/automation && npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "format": "prettier --write .",
