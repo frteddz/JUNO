@@ -45,7 +45,7 @@ npm install
 npm run dev -- "open firefox"
 
 # interactive terminal interface
-npm run dev -- --run
+npm run tui
 ```
 
 > To use the bare `juno` command from this repo (instead of `npm run dev -- "…"`), link it once:
