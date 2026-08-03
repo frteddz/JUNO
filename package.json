@@ -16,7 +16,7 @@
     "dev": "npm run dev --workspace @euthenia/juno",
     "start": "npm run start --workspace @euthenia/juno",
     "tui": "npm run tui --workspace @euthenia/juno",
-    "typecheck": "npm run build && npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build --workspace @euthenia/core && npm run build --workspace @euthenia/automation && npm run build --workspace @euthenia/backend && npm run build --workspace @euthenia/plugins && npm run build --workspace @euthenia/ai && npm run build --workspace @euthenia/tui && npm run build --workspace @euthenia/juno && npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "npm run test --workspaces --if-present",
