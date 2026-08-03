@@ -8,7 +8,7 @@ See [info.md](info.md).
 
 ## Is JUNO an AI?
 
-It can be. By default JUNO answers every message with **DeepSeek AI** (chat.deepseek.com) — it
+It can be. By default JUNO answers every message with **DeepSeek AI** (chat.deepseek.com) - it
 replies conversationally or returns a local action (open apps, file operations, timers, reminders,
 system info, calculations) that JUNO executes. With `juno config set aiProvider off` it switches
 to a deterministic local parser: no AI, no account, no cloud.
