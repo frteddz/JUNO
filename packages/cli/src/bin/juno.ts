@@ -23,6 +23,12 @@ export const SUBCOMMANDS = new Set([
 ]);
 
 async function main(): Promise<void> {
+  if (rawArgs[0] === "--run" || rawArgs[0] === "tui") {
+    const { startTui } = await import("@juno/tui");
+    await startTui();
+    return;
+  }
+
   const eventBus = createEventBus();
   const program = makeProgram(eventBus);
 
@@ -43,6 +49,9 @@ async function main(): Promise<void> {
   }
 
   program.parseAsync().catch((err) => {
+    if (err && typeof err.code === "string" && err.code.startsWith("commander.")) {
+      process.exit(0);
+    }
     console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
   });
