@@ -23,7 +23,7 @@ export const SUBCOMMANDS = new Set([
 ]);
 
 async function main(): Promise<void> {
-  if (rawArgs[0] === "--run" || rawArgs[0] === "tui") {
+  if (rawArgs.length === 0 || rawArgs[0] === "--run" || rawArgs[0] === "tui") {
     const { startTui } = await import("@juno/tui");
     await startTui();
     return;

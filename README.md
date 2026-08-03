@@ -41,11 +41,11 @@ git clone https://github.com/frteddz/JUNO.git
 cd JUNO
 npm install
 
+# interactive terminal interface (or just: juno)
+npm run tui
+
 # one-shot command
 npm run dev -- "open firefox"
-
-# interactive terminal interface
-npm run tui
 ```
 
 > To use the bare `juno` command from this repo (instead of `npm run dev -- "…"`), link it once:
@@ -53,6 +53,14 @@ npm run tui
 > cd JUNO/packages/cli && npm link
 > ```
 > or install globally with `npm install -g .`. All examples below assume `juno` is on your PATH.
+
+Once `juno` is on your PATH:
+
+```bash
+juno                 # launch the interactive UI
+juno --help          # list subcommands
+juno --version       # show version
+```
 
 ## Available without an AI
 
