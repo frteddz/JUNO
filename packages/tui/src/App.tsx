@@ -536,8 +536,9 @@ async function run(text: string): Promise<void> {
   const addMessage = useApp.getState().addMessage;
   const updateMessage = useApp.getState().updateMessage;
   const sessionId = getStore().createSession().id;
-  const streamId = crypto.randomUUID();
-  addMessage(createMessage(sessionId, "assistant", ""));
+  const assistant = createMessage(sessionId, "assistant", "");
+  addMessage(assistant);
+  const streamId = assistant.id;
 
   const config = await getConfig();
   if (config.aiProvider === "deepseek") {
