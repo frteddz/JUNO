@@ -2,6 +2,7 @@ import { Box, Text, useInput } from "ink";
 import TextInput from "ink-text-input";
 import { useEffect, type ReactElement } from "react";
 import { Markdown } from "./markdown.js";
+import { Banner } from "./banner.js";
 import {
   getStore,
   createDispatcher,
@@ -18,13 +19,19 @@ type Props = { bus: JunoEventBus };
 
 export function App({ bus }: Props): ReactElement {
   const smartBus = resolveBus(bus);
+  const messages = useApp((s) => s.messages);
+  const accent = useApp((s) => s.accent);
 
   useInput(() => {});
 
   return (
     <Box flexDirection="column" flexGrow={1}>
       <ChatHeader />
-      <MessageList bus={smartBus} />
+      {messages.length === 0 ? (
+        <Welcome accent={accent} />
+      ) : (
+        <MessageList bus={smartBus} />
+      )}
       <CommandBar />
     </Box>
   );
@@ -42,6 +49,20 @@ function ChatHeader(): ReactElement {
         JUNO
       </Text>
       <Text dimColor>  Just Understands Natural Orders</Text>
+    </Box>
+  );
+}
+
+function Welcome({ accent }: { accent: string }): ReactElement {
+  return (
+    <Box flexDirection="column" flexGrow={1} alignItems="center" justifyContent="center" paddingY={2}>
+      <Banner accent={accent} />
+      <Box marginTop={2} flexDirection="column" alignItems="center">
+        <Text dimColor>Try:</Text>
+        <Text color={accent}>  open firefox</Text>
+        <Text color={accent}>  set a timer for 10m</Text>
+        <Text color={accent}>  find mynotes.txt on my pc</Text>
+      </Box>
     </Box>
   );
 }

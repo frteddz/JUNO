@@ -1,3 +1,4 @@
+import { homedir } from "node:os";
 import { IntentSchema, type ParsedIntent } from "./types.js";
 
 export type ParseResult =
@@ -14,7 +15,7 @@ function firstMatch(input: string, re: RegExp): string | undefined {
 }
 
 function durationToMs(input: string): number | undefined {
-  const m = /(\d+(?:\.\d+)?)\s*(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h)\b/i.exec(input);
+  const m = /(\d+(?:\.\d+)?)\s*(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d)\b/i.exec(input);
   if (!m) return undefined;
   const n = Number(m[1]);
   if (!Number.isFinite(n)) return undefined;
@@ -22,7 +23,15 @@ function durationToMs(input: string): number | undefined {
   if (unit === "s") return n * 1000;
   if (unit === "m") return n * 60_000;
   if (unit === "h") return n * 3_600_000;
+  if (unit === "d") return n * 86_400_000;
   return undefined;
+}
+
+function stripTrailingClause(name: string): string {
+  const clean = name.trim();
+  const andMatch = /\s+and\s+/i.exec(clean);
+  if (andMatch) return clean.slice(0, andMatch.index).trim();
+  return clean;
 }
 
 function parseRelativeAt(input: string): Date | undefined {
@@ -65,14 +74,14 @@ export function parseCommand(input: string): ParseResult {
     return { ok: true as const, intent: parsed.data };
   };
 
-  if (/\b(?:open|launch|start)\b/.test(lower)) {
+  if (/\b(?:open|launch|start)\b/.test(lower) && !/\b(?:timer|remind)\b/.test(lower)) {
     const app = firstMatch(text, QUOTED) ?? firstMatch(text, /\b(?:open|launch|start)\s+(.+)/i);
-    if (app) return result({ intent: "open", app: stripQuotes(app) });
+    if (app) return result({ intent: "open", app: stripQuotes(stripTrailingClause(app)) });
   }
 
   if (/\b(?:close|quit|kill|exit)\b/.test(lower)) {
     const app = firstMatch(text, QUOTED) ?? firstMatch(text, /\b(?:close|quit|kill|exit)\s+(.+)/i);
-    if (app) return result({ intent: "close", app: stripQuotes(app) });
+    if (app) return result({ intent: "close", app: stripQuotes(stripTrailingClause(app)) });
   }
 
   if (/\b(?:system|sys|computer)\b/.test(lower) && /\b(?:info|status|stats|details)\b/.test(lower)) {
@@ -92,22 +101,41 @@ export function parseCommand(input: string): ParseResult {
     if (path) return result({ intent: "file.list", path: stripQuotes(path) });
   }
 
-  if (/\bsearch\b/.test(lower)) {
-    const rest = text.replace(/\bsearch\b/i, "");
-    const inMatch = /\bin\s+(.+)/i.exec(rest);
-    const query = firstMatch(rest, QUOTED) ?? inMatch?.[1];
+  if (/\b(?:search|find|locate|look for)\b/.test(lower)) {
+    const isPc = /\b(?:on|across|over)\s+(?:my\s+)?(?:pc|computer|system|drive|machine)\b/i.test(lower);
+    const locationMatch = /\b(?:in|under|inside)\s+(.+)/i.exec(text);
+    const pcMatch = /\b(?:on|across|over)\s+(?:my\s+)?(?:pc|computer|system|drive|machine)\b/i.exec(text);
+    const strip = (candidate: string | undefined) => {
+      let rest = candidate ? text.replace(candidate, "") : text;
+      rest = rest.replace(/\b(?:search|find|locate|look for)\b/i, "");
+      rest = rest.replace(/^(?:\s+)?(?:for|the|of|about|a|an)\s+/i, "");
+      return rest.trim();
+    };
+    const rest = strip(locationMatch?.[0] ?? pcMatch?.[0]);
+    const quoted = firstMatch(text, QUOTED);
+    const query = stripQuotes(quoted ?? rest);
     if (query) {
-      const path = stripQuotes(inMatch?.[1] ?? process.cwd());
-      const q = stripQuotes(query === inMatch?.[1] ? "" : query);
-      if (q) return result({ intent: "file.search", path, query: q });
+      const inPath = locationMatch?.[1]?.trim();
+      const path = inPath
+        ? stripQuotes(inPath)
+        : isPc
+          ? homedir()
+          : process.cwd();
+      return result({ intent: "file.search", path, query });
     }
   }
 
-  if (/\b(?:timer|timers?|countdown)\b/.test(lower) && !/\bset\b/.test(lower) === false) {
+  if (/\b(?:timer|timers?|countdown)\b/.test(lower)) {
+    const durationMatch = /(\d+(?:\.\d+)?)\s*(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d)\b/i.exec(text);
     const durationMs = durationToMs(text);
-    if (durationMs !== undefined) {
-      const label = firstMatch(text, /\b(?:for|named|called)\s+(?:a\s+)?(.+)/i)?.trim();
-      return result({ intent: "timer", durationMs, label });
+    if (durationMatch && durationMs !== undefined) {
+      const label = (firstMatch(text, /\b(?:for|named|called)\s+(?:a\s+)?(.+)/i) ?? "").trim();
+      const cleaned = label
+        .replace(durationMatch[0], "")
+        .trim()
+        .replace(/^(?:named|called)\s+/i, "")
+        .trim();
+      return result({ intent: "timer", durationMs, label: cleaned || undefined });
     }
   }
 

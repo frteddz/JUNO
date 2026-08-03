@@ -44,7 +44,10 @@ export async function readTextFile(target: string): Promise<string> {
 export async function searchFiles(root: string, query: string): Promise<string[]> {
   const base = resolve(root);
   const hits: string[] = [];
-  const box = query.toLowerCase();
+  const boxes = query
+    .split(",")
+    .map((p) => p.trim().toLowerCase())
+    .filter((p) => p.length > 0 && p !== "etc" && p !== "and etc");
   const stack = [base];
   let visited = 0;
   const MAX = 2000;
@@ -63,7 +66,7 @@ export async function searchFiles(root: string, query: string): Promise<string[]
       if (d.name.startsWith(".") || d.name === "node_modules") continue;
       if (d.isDirectory()) {
         stack.push(full);
-      } else if (d.name.toLowerCase().includes(box)) {
+      } else if (boxes.some((b) => d.name.toLowerCase().includes(b))) {
         hits.push(full);
       }
     }
