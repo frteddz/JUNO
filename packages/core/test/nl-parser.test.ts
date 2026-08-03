@@ -92,7 +92,24 @@ describe("parseCommand", () => {
   it("strips trailing 'and' clause from open", () => {
     const r = parseCommand("open firefox and search the ram prices");
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.intent).toMatchObject({ intent: "open", app: "firefox" });
+    if (r.ok) {
+      expect(r.intent).toMatchObject({ intent: "open", app: "firefox", search: "ram prices" });
+    }
+  });
+
+  it("parses open with google lookup", () => {
+    const r = parseCommand("open firefox and look up ram prices");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "open", app: "firefox", search: "ram prices" });
+  });
+
+  it("parses plain open without search", () => {
+    const r = parseCommand("open firefox");
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.intent).toMatchObject({ intent: "open", app: "firefox" });
+      if (r.intent.intent === "open") expect(r.intent.search).toBeUndefined();
+    }
   });
 
   it("strips trailing 'and' clause from close", () => {

@@ -11,8 +11,8 @@ export function createDispatcher(_ctx: ExecContext = {}): Dispatcher {
     try {
       switch (intent.intent) {
         case "open": {
-          await openApp(intent.app);
-          return { ok: true, message: `Opened ${intent.app}` };
+          await openApp(intent.app, intent.search);
+          return { ok: true, message: `Opened ${intent.app}${intent.search ? ` and searched "${intent.search}"` : ""}` };
         }
         case "close": {
           await closeApp(intent.app);

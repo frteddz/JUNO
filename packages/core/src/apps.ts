@@ -6,19 +6,24 @@ export function platformLabel(): string {
   return p === "win32" ? "windows" : p === "darwin" ? "macos" : "linux";
 }
 
-export function launcherCommand(app: string): { cmd: string; args: string[] } {
+export function launcherCommand(app: string, url?: string): { cmd: string; args: string[] } {
   const p = platform();
   if (p === "win32") {
-    return { cmd: "cmd", args: ["/c", "start", "", app] };
+    return { cmd: "cmd", args: ["/c", "start", "", app, ...(url ? [url] : [])] };
   }
   if (p === "darwin") {
-    return { cmd: "open", args: ["-a", app] };
+    return { cmd: "open", args: ["-a", app, ...(url ? [url] : [])] };
   }
-  return { cmd: app, args: [] };
+  return { cmd: app, args: url ? [url] : [] };
 }
 
-export async function openApp(app: string): Promise<void> {
-  const { cmd, args } = launcherCommand(app);
+export function searchUrl(query: string): string {
+  return `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+}
+
+export async function openApp(app: string, search?: string): Promise<void> {
+  const url = search ? searchUrl(search) : undefined;
+  const { cmd, args } = launcherCommand(app, url);
   await new Promise<void>((resolve, reject) => {
     const child = spawn(cmd, args, { stdio: "ignore", detached: true });
     child.once("error", reject);

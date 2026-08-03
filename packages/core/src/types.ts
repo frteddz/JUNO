@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const IntentSchema = z.discriminatedUnion("intent", [
-  z.object({ intent: z.literal("open"), app: z.string().min(1) }),
+  z.object({ intent: z.literal("open"), app: z.string().min(1), search: z.string().optional() }),
   z.object({ intent: z.literal("close"), app: z.string().min(1) }),
   z.object({ intent: z.literal("file.read"), path: z.string().min(1) }),
   z.object({ intent: z.literal("file.write"), path: z.string().min(1), content: z.string() }),

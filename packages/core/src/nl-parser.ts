@@ -34,6 +34,20 @@ function stripTrailingClause(name: string): string {
   return clean;
 }
 
+function splitAndClause(app: string): { app: string; search?: string } {
+  const andMatch = /\s+and\s+/i.exec(app);
+  if (!andMatch) return { app: app.trim() };
+  const first = app.slice(0, andMatch.index).trim();
+  const rest = app.slice(andMatch.index + andMatch[0].length).trim();
+  const searchMatch = /\b(?:search|look up|google|find)\b\s+(.+)/i.exec(rest);
+  const restOfClause = searchMatch?.[1];
+  if (restOfClause) {
+    const q = restOfClause.replace(/^(?:for|the|up)\s+/i, "").trim();
+    return { app: first, search: q || undefined };
+  }
+  return { app: first };
+}
+
 function parseRelativeAt(input: string): Date | undefined {
   const ms = durationToMs(input);
   if (ms === undefined) return undefined;
@@ -75,8 +89,11 @@ export function parseCommand(input: string): ParseResult {
   };
 
   if (/\b(?:open|launch|start)\b/.test(lower) && !/\b(?:timer|remind)\b/.test(lower)) {
-    const app = firstMatch(text, QUOTED) ?? firstMatch(text, /\b(?:open|launch|start)\s+(.+)/i);
-    if (app) return result({ intent: "open", app: stripQuotes(stripTrailingClause(app)) });
+    const raw = firstMatch(text, QUOTED) ?? firstMatch(text, /\b(?:open|launch|start)\s+(.+)/i);
+    if (raw) {
+      const clause = splitAndClause(stripQuotes(raw));
+      return result({ intent: "open", app: clause.app, search: clause.search });
+    }
   }
 
   if (/\b(?:close|quit|kill|exit)\b/.test(lower)) {
@@ -170,7 +187,7 @@ export function parseCommand(input: string): ParseResult {
 export function describeIntent(intent: ParsedIntent): string {
   switch (intent.intent) {
     case "open":
-      return `Open ${intent.app}`;
+      return `Open ${intent.app}${intent.search ? ` and search "${intent.search}"` : ""}`;
     case "close":
       return `Close ${intent.app}`;
     case "file.read":
