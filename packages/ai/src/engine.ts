@@ -159,7 +159,7 @@ export class AiEngine implements AiEngineLike {
   }
 
   async beginVisibleAuth(): Promise<void> {
-    if (this.headless) {
+    if (this.headless || !this.page) {
       await this.close();
       const config: JunoConfig = await getConfig();
       const { context, page } = await launchDeepSeek({ headless: false, dataDir: config.dataDir });
