@@ -1,11 +1,13 @@
 {
   "name": "juno",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "JUNO - Just Understands Natural Orders. A local-first, non-AI command assistant for your terminal.",
   "license": "UNLICENSED",
   "type": "module",
-  "bin": { "juno": "./packages/cli/dist/bin/juno.js" },
+  "bin": {
+    "juno": "./packages/cli/dist/bin/juno.js"
+  },
   "workspaces": [
     "packages/*"
   ],
