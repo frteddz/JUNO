@@ -18,6 +18,13 @@ Live status of the JUNO build.
 - Commander CLI with natural-language and subcommand modes, `--json`.
 - Ink TUI chat skeleton with markdown rendering and gold accent theme.
 - Plugin registry with activate/deactivate lifecycle.
+- Quality gate: `tsc --noEmit`, ESLint, Prettier, Vitest (21 tests), `tsup` build all pass.
+- Local git history (main branch); GitHub push pending `gh` auth (gh CLI not installed on this machine).
+
+## Completed (M0)
+- Monorepo scaffold and shared tooling.
+- All six packages build and typecheck cleanly.
+- CI workflow added in `.github/workflows/ci.yml`.
 
 ## In progress
 - Unit + integration tests across packages (Vitest).
