@@ -4,8 +4,9 @@
 
 **JUNO** = **J**ust **U**nderstands **N**atural **O**rders.
 
-JUNO is a **local-first, NON-AI** assistant that understands natural language and executes tasks
-on your computer through a modern terminal interface.
+JUNO is a **local-first** assistant that understands natural language and executes tasks
+on your computer through a modern terminal interface. It runs fully offline with a deterministic
+parser, or answers with optional DeepSeek AI.
 
 ## One-sentence problem statement
 
@@ -58,10 +59,10 @@ on your computer through a modern terminal interface.
 
 ### Quality / release
 - Build: `tsc --noEmit`, ESLint 9, Prettier, Husky + lint-staged, GitHub Actions CI.
-- Install: `npm install` (dev), `npm i -g @juno-cli/juno` (stable), standalone binaries.
+- Install: `npm install` (dev), `npm i -g @juno-cli/juno` (planned), standalone binaries.
 
 ### Distribution & licensing
-- Not open source (UNLICENSED / private). See [LICENSE.md](../LICENSE.md).
+- Public repo for visibility, but all rights reserved (UNLICENSED). See [LICENSE.md](../LICENSE.md).
 
 ## Status
 See **[progress.md](progress.md)** for current build state and **[milestone.md](milestone.md)** for the roadmap.

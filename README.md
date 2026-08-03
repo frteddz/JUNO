@@ -4,8 +4,8 @@
 
 **J**ust **U**nderstands **N**atural **O**rders
 
-_A local-first, non-AI command-line assistant that understands natural language and runs tasks
-on your computer — right from the terminal._
+_A local-first command-line assistant that understands natural language and runs tasks on your
+computer — right from the terminal. Offline-first, with optional DeepSeek AI._
 
 [![CI](https://img.shields.io/github/actions/workflow/status/frteddz/JUNO/ci.yml?branch=main&label=CI&logo=github)](https://github.com/frteddz/JUNO/actions)
 [![Node](https://img.shields.io/badge/node-%3E%3D24-339933?logo=node.js&logoColor=white)](https://nodejs.org)
@@ -16,8 +16,10 @@ on your computer — right from the terminal._
 ---
 
 JUNO takes a plain-English command, figures out what you want, and does it: open apps, read and
-search files, set timers and reminders, show system info, and crunch numbers — **with no AI, no
-cloud, and no API keys.** It's fast, offline-first, and built entirely in TypeScript.
+search files, set timers and reminders, show system info, and crunch numbers. By default every
+message is answered by **DeepSeek AI** (chat.deepseek.com) — it replies conversationally or hands
+back a local action for JUNO to execute. When the AI is off or unavailable, a deterministic local
+parser covers the same commands: **no cloud, no API keys, nothing leaves your machine.**
 
 > **Notice:** JUNO is **proprietary software**, not open source. See [LICENSE](LICENSE.md).
 
@@ -122,11 +124,11 @@ juno read package.json --json
 
 | Method | Command |
 | --- | --- |
-| **From source (dev)** | `git clone …` + `npm install` |
+| **From source (dev)** | `git clone …` + `npm install` + `cd packages/cli && npm link` |
 | **Global npm (stable)** | `npm install -g @juno-cli/juno` <sup>1</sup> |
 | **Standalone binaries** | Linux / macOS / Windows executable <sup>2</sup> |
 
-<sup>1</sup> Published under the `@juno-cli` scope. <br>
+<sup>1</sup> Planned under the `@juno-cli` scope. <br>
 <sup>2</sup> On the roadmap — see [Milestones](docs/milestone.md).
 
 After a global install, run it anywhere:

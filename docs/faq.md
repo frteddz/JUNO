@@ -2,14 +2,16 @@
 
 ## What is JUNO?
 
-JUNO (**Just Understands Natural Orders**) is a local-first, non-AI assistant that understands
+JUNO (**Just Understands Natural Orders**) is a local-first assistant that understands
 natural-language commands and executes tasks on your computer through a modern terminal interface.
 See [info.md](info.md).
 
 ## Is JUNO an AI?
 
-No. JUNO is non-AI. It parses natural-language commands with deterministic rules and executes
-local actions (open apps, file operations, timers, reminders, system info, calculations).
+It can be. By default JUNO answers every message with **DeepSeek AI** (chat.deepseek.com) — it
+replies conversationally or returns a local action (open apps, file operations, timers, reminders,
+system info, calculations) that JUNO executes. With `juno config set aiProvider off` it switches
+to a deterministic local parser: no AI, no account, no cloud.
 
 ## Does JUNO require a server or Docker?
 
@@ -41,7 +43,8 @@ Write a plugin. See [plugin-development.md](plugin-development.md).
 
 ## Is JUNO open source?
 
-No. JUNO is proprietary and private. See [LICENSE.md](../LICENSE.md).
+No. JUNO is proprietary; the repo is public for visibility, but the code is all rights reserved.
+See [LICENSE.md](../LICENSE.md).
 
 ## Where is the documentation?
 
