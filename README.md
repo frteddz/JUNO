@@ -5,21 +5,39 @@
 **J**ust **U**nderstands **N**atural **O**rders
 
 _A local-first command-line assistant that understands natural language and runs tasks on your
-computer - right from the terminal. Offline-first, with optional DeepSeek AI._
+computer — right from the terminal. Offline-first, with optional DeepSeek AI._
 
 [![CI](https://img.shields.io/github/actions/workflow/status/frteddz/JUNO/ci.yml?branch=main&label=CI&logo=github)](https://github.com/frteddz/JUNO/actions)
 [![Node](https://img.shields.io/badge/node-%3E%3D24-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![License](https://img.shields.io/badge/license-Proprietary-999999.svg)](#license)
+[![npm](https://img.shields.io/npm/v/@euthenia/juno?logo=npm)](https://www.npmjs.com/package/@euthenia/juno)
 
 </div>
 
 ---
 
+## Table of contents
+
+- [What it is](#what-it-is)
+- [Requirements](#requirements)
+- [Try it](#try-it)
+- [AI mode](#ai-mode)
+- [Offline mode (no AI)](#offline-mode-no-ai)
+- [Installation options](#installation-options)
+- [Development](#development)
+- [Project structure](#project-structure)
+- [Documentation](#documentation)
+- [License](#license)
+
+---
+
 JUNO takes a plain-English command, figures out what you want, and does it: open apps, read and
 search files, set timers and reminders, show system info, and crunch numbers. By default every
-message is answered by **DeepSeek AI** (chat.deepseek.com) - it replies conversationally or hands
+message is answered by **DeepSeek AI** (chat.deepseek.com) — it replies conversationally or hands
 back a local action for JUNO to execute. When the AI is off or unavailable, a deterministic local
 parser covers the same commands: **no cloud, no API keys, nothing leaves your machine.**
+
+## What it is
 
 > **Notice:** JUNO is **proprietary software**, not open source. See [LICENSE](LICENSE.md).
 

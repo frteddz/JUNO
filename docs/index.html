@@ -306,9 +306,51 @@
         .sec-head small { display: none; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .kbd-cursor { animation: none !important; }
+        .kbd-cursor, .live-dot, .hero .termbg, .sec, .term, .ais li, .btn, .codeblock { animation: none !important; }
         html { scroll-behavior: auto; }
       }
+
+      .live-dot { display: inline-block; animation: pulse 2s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+      .hero .termbg {
+        animation: drift 28s ease-in-out infinite alternate;
+      }
+      @keyframes drift {
+        0% { transform: translateX(-1.5%) scale(1); }
+        100% { transform: translateX(1.5%) scale(1.06); }
+      }
+
+      .sec, .term { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+      .sec.in, .term.in { opacity: 1; transform: none; }
+
+      .ais li { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease, border-color .2s; }
+      .ais li.in { opacity: 1; transform: none; }
+      .ais li:hover { border-color: var(--c-gold-dim); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+
+      .dos li { transition: transform .15s ease, color .15s; }
+      .dos li:hover { transform: translateX(6px); }
+
+      tr { transition: background .15s; }
+      tr:hover td { background: rgba(216,178,74,.05); }
+
+      .btn { position: relative; overflow: hidden; }
+      .btn::after {
+        content: ""; position: absolute; top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(100deg, transparent, rgba(255,255,255,.12), transparent);
+        transition: left .5s ease;
+      }
+      .btn:hover::after { left: 100%; }
+
+      .status a, .foot-wrap a { position: relative; }
+      .status a::after, .foot-wrap a::after {
+        content: ""; position: absolute; left: 0; bottom: -2px;
+        width: 100%; height: 1px; background: var(--c-gold);
+        transform: scaleX(0); transform-origin: left;
+        transition: transform .25s ease;
+      }
+      .status a:hover::after, .foot-wrap a:hover::after { transform: scaleX(1); }
     </style>
   </head>
   <body>
@@ -334,7 +376,7 @@
 ▒▒████████   ▒▒████████   █████  ▒▒█████ ▒▒▒███████▒
  ▒▒▒▒▒▒▒▒     ▒▒▒▒▒▒▒▒   ▒▒▒▒▒    ▒▒▒▒▒    ▒▒▒▒▒▒▒</pre></div>
       <div class="hero__inner">
-        <div class="prompt"><span class="p">-bash-5.1$</span> juno <span class="d">"open firefox and set a timer for 30 minutes"</span><span class="kbd-cursor"></span></div>
+        <div class="prompt"><span class="p">-bash-5.1$</span> juno <span class="d"><span id="typed"></span></span><span class="kbd-cursor"></span></div>
 
         <h1>Your terminal,<br /><span class="dim">just understands natural orders.</span></h1>
         <p class="lede">
@@ -471,5 +513,29 @@ juno <span class="c1">"open firefox"</span></pre>
         <div>© 2026 · <a href="https://github.com/frteddz/JUNO">github</a></div>
       </div>
     </footer>
+  <script>
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { threshold: 0.12 }
+      );
+      for (const el of document.querySelectorAll(".sec, .term, .ais li")) io.observe(el);
+
+      const phrase = '"open firefox and set a timer for 30 minutes"';
+      const typed = document.getElementById("typed");
+      let i = 0;
+      const tick = () => {
+        typed.textContent = phrase.slice(0, i);
+        i += 1;
+        if (i <= phrase.length) setTimeout(tick, 45);
+      };
+      setTimeout(tick, 600);
+    </script>
   </body>
 </html>
