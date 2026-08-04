@@ -102,10 +102,22 @@ describe("researchLaunchCommand", () => {
     expect(parseDdgResearch("<html>nothing here</html>")).toHaveLength(0);
   });
 
-  it("returns empty string on a failed lookup", async () => {
-    const result = await researchLaunchCommand("__zzz_nothing_here__");
-    expect(result).toBe("");
-  }, 15000);
+  it("returns empty string when a source has no result links", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: string | URL | Request) => {
+      const u = String(url);
+      if (u.includes("duckduckgo")) {
+        return new Response("<html>no results</html>", { status: 200 });
+      }
+      throw new Error("network error");
+    }) as typeof fetch;
+    try {
+      const result = await researchLaunchCommand("__zzz_nothing_here__");
+      expect(result).toBe("");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
 
 describe("installPackage", () => {
