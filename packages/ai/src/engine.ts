@@ -3,6 +3,7 @@ import {
   IntentSchema,
   type ParsedIntent,
   type JunoEventBus,
+  type Dispatcher,
   getConfig,
   createDispatcher,
   type JunoConfig,
@@ -58,6 +59,10 @@ const PROTOCOL_PROMPT =
   '{ "intent": "sys.info" } | ' +
   '{ "intent": "help" }. "durationMs" must be a number of milliseconds. ' +
   '"at" must be an ISO 8601 UTC timestamp. "path" should be an absolute path or the user home. ' +
+  '"open" works for ANY application name the user says, even if you have never heard of it: ' +
+  'the system searches the user\'s PATH, flatpak, and snap, and if it cannot find the app it ' +
+  "looks up launch instructions online. Never refuse an \"open\" request or ask which app the " +
+  'user means; if the user names an app, emit the "open" action with that exact name. ' +
   '"terminal" runs the command in the user\'s own terminal session; use it to launch or manage ' +
   'console commands and long-running processes, and set "label" so the process can be closed later. ' +
   '"install" installs a software package on the user\'s OS; use it to download and install software. ' +
@@ -211,16 +216,35 @@ export async function runAiTurn(
   const { text, action } = await engine.ask(prompt, onPatch ?? (() => {}));
   if (!action) return { ok: true, message: text, action: null };
   const dispatcher = createDispatcher();
-  let message: string;
+  const message = await executeAction(dispatcher, action, bus);
+  if (message.ok || action.intent !== "open") {
+    return { ok: message.ok, message: message.message, action };
+  }
+  const app = action.intent === "open" ? action.app : "";
+  const recovery = `The action "${action.intent} ${app}" just failed on the user's machine. ` +
+    "Explain why it failed and either tell the user exactly what to do next, " +
+    "or emit another single action (for example \"install\" or a \"terminal\" command) that fixes it. " +
+    "Do not emit another \"open\" action.";
+  const retry = await engine.ask(`${recovery}\n\nThe failed result was: ${message.message}\n\nUser asked: ${prompt}`, onPatch ?? (() => {}));
+  if (!retry.action) return { ok: true, message: retry.text, action };
+  if (retry.action.intent === "open") return { ok: false, message: message.message, action: retry.action };
+  const retried = await executeAction(dispatcher, retry.action, bus);
+  return { ok: retried.ok, message: retried.message, action: retry.action };
+}
+
+async function executeAction(
+  dispatcher: Dispatcher,
+  action: ParsedIntent,
+  bus: JunoEventBus,
+): Promise<{ ok: boolean; message: string }> {
   if (action.intent === "timer") {
     const timer = startTimer({ durationMs: action.durationMs, label: action.label }, bus);
-    message = `Timer set (${timer.id.slice(0, 8)}) for ${action.durationMs} ms${action.label ? `: ${action.label}` : ""}`;
-  } else if (action.intent === "reminder") {
-    const r = scheduleReminder({ at: action.at, label: action.label }, bus);
-    message = `Reminder set (${r.id.slice(0, 8)}) at ${action.at.toISOString()}: ${action.label}`;
-  } else {
-    const result = await dispatcher(action);
-    message = result.message;
+    return { ok: true, message: `Timer set (${timer.id.slice(0, 8)}) for ${action.durationMs} ms${action.label ? `: ${action.label}` : ""}` };
   }
-  return { ok: true, message, action };
+  if (action.intent === "reminder") {
+    const r = scheduleReminder({ at: action.at, label: action.label }, bus);
+    return { ok: true, message: `Reminder set (${r.id.slice(0, 8)}) at ${action.at.toISOString()}: ${action.label}` };
+  }
+  const result = await dispatcher(action);
+  return { ok: result.ok, message: result.message };
 }

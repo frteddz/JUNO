@@ -187,6 +187,10 @@ export function resolveLaunchSpec(app: string): LaunchSpec | "unknown" | "unsupp
   if (p === "unsupported") return "unsupported";
   if (p === "linux") {
     if (which(app)) return { cmd: app, args: [], detached: true };
+    const flatpakApp = findFlatpakApp(app);
+    if (flatpakApp) return { cmd: "flatpak", args: ["run", flatpakApp], detached: true };
+    const snapApp = findSnapApp(app);
+    if (snapApp) return { cmd: "snap", args: ["run", snapApp], detached: true };
     return "unknown";
   }
   const exe = app.toLowerCase().endsWith(".exe") ? app : `${app}.exe`;
@@ -194,20 +198,104 @@ export function resolveLaunchSpec(app: string): LaunchSpec | "unknown" | "unsupp
   return { cmd: app, args: [], detached: false };
 }
 
-export async function launchApp(app: string, search?: string): Promise<{ ok: boolean; message: string }> {
+function findFlatpakApp(app: string): string | null {
+  if (!which("flatpak")) return null;
+  const r = spawnSync("flatpak", ["list", "--app", "--columns=application,name"], { timeout: 5000 });
+  if (r.status !== 0) return null;
+  const needle = app.toLowerCase();
+  for (const line of r.stdout.toString().split("\n")) {
+    const [id, name] = line.split("\t");
+    if (!id) continue;
+    const idBase = id.split(".").pop()?.toLowerCase();
+    if (id.toLowerCase() === needle || idBase === needle || (name ?? "").toLowerCase() === needle) return id;
+  }
+  return null;
+}
+
+function findSnapApp(app: string): string | null {
+  if (!which("snap")) return null;
+  const r = spawnSync("snap", ["list"], { timeout: 5000 });
+  if (r.status !== 0) return null;
+  const needle = app.toLowerCase();
+  for (const line of r.stdout.toString().split("\n")) {
+    const name = line.trim().split(/\s+/)[0];
+    if (name && name.toLowerCase() === needle) return name;
+  }
+  return null;
+}
+
+export type ResearchLink = { title: string; url: string };
+
+export function parseDdgResearch(html: string): ResearchLink[] {
+  const out: ResearchLink[] = [];
+  for (const block of html.matchAll(/<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)) {
+    const title = block[2]!.replace(/<[^>]+>/g, "").trim();
+    const url = decodeDdgLink(block[1] ?? "");
+    if (title && url.startsWith("http")) out.push({ title, url });
+  }
+  return out;
+}
+
+function decodeDdgLink(href: string): string {
+  const m = /uddg=([^&]+)/.exec(href);
+  if (!m) return href;
+  try {
+    return decodeURIComponent(m[1]!);
+  } catch {
+    return href;
+  }
+}
+
+export async function researchLaunchCommand(app: string): Promise<string> {
+  const query = encodeURIComponent(`how to run ${app} on linux`);
+  const sources: Array<{ name: string; url: string; parse: (html: string) => ResearchLink[] }> = [
+    {
+      name: "duckduckgo",
+      url: `https://html.duckduckgo.com/html/?q=${query}`,
+      parse: parseDdgResearch,
+    },
+  ];
+  for (const src of sources) {
+    try {
+      const res = await fetch(src.url, {
+        headers: { "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36" },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) continue;
+      const links = src.parse(await res.text());
+      if (links.length === 0) continue;
+      return links
+        .slice(0, 5)
+        .map((l) => `- ${l.title} (${l.url})`)
+        .join("\n");
+    } catch {
+      continue;
+    }
+  }
+  return "";
+}
+
+export async function launchApp(
+  app: string,
+  search?: string,
+  opts: { research?: boolean } = {},
+): Promise<{ ok: boolean; message: string }> {
   const spec = resolveLaunchSpec(app);
   if (spec === "unsupported") {
     return { ok: false, message: "Terminal launch is currently supported on Linux and Windows only." };
   }
   if (spec === "unknown") {
-    return {
-      ok: false,
-      message: `Could not find "${app}" to launch. Try "install ${app}" or ask JUNO to research how to run it.`,
-    };
+    let message = `Could not find "${app}" to launch. Try "install ${app}" to add it with your package manager.`;
+    if (opts.research) {
+      const results = await researchLaunchCommand(app);
+      if (results) message = `${message}\n\nHere is what I found about running "${app}":\n${results}`;
+    }
+    return { ok: false, message };
   }
   const args = search ? [...spec.args, searchUrl(search)] : spec.args;
   const worker = spawn(spec.cmd, args, { stdio: "ignore", detached: spec.detached && terminalPlatform() !== "windows" });
   worker.once("error", () => {});
+  if (spec.detached && terminalPlatform() !== "windows") worker.unref();
   trackEntry(trackKey(app), app, worker, [spec.cmd, ...args].join(" "));
   return { ok: true, message: `Launched ${app} (pid ${worker.pid ?? "?"})` };
 }

@@ -5,6 +5,9 @@ import {
   runInTerminal,
   installPackage,
   resolveInstallCommand,
+  resolveLaunchSpec,
+  parseDdgResearch,
+  researchLaunchCommand,
   listTracked,
   stopTracked,
 } from "../src/terminal";
@@ -63,6 +66,46 @@ describe("runInTerminal", () => {
       expect(stopped.ok).toBe(true);
     }
   }, 5000);
+});
+
+describe("resolveLaunchSpec", () => {
+  it("finds PATH apps on linux", () => {
+    if (terminalPlatform() === "linux") {
+      const spec = resolveLaunchSpec("bash");
+      expect(spec).not.toBe("unknown");
+      if (spec !== "unknown" && spec !== "unsupported") {
+        expect(spec.cmd).toBe("bash");
+      }
+    }
+  });
+
+  it("returns unknown for a bogus app", () => {
+    if (terminalPlatform() === "linux") {
+      expect(resolveLaunchSpec("__definitely_not_an_app_xyz__")).toBe("unknown");
+    }
+  });
+});
+
+describe("researchLaunchCommand", () => {
+  const ddgHtml =
+    `<div class="result"><a class="result__snippet" href="//duckduckgo.com/l/?uddg=${encodeURIComponent("https://example.com/run")}">raw</a>` +
+    `<a class="result__a" href="//duckduckgo.com/l/?uddg=${encodeURIComponent("https://example.com/sober")}">Run Sober on Linux</a>` +
+    `<a class="result__a" href="//duckduckgo.com/l/?uddg=${encodeURIComponent("https://example.org/flatpak")}">Flatpak guide</a></div>`;
+
+  it("parses result links from ddg html", () => {
+    const links = parseDdgResearch(ddgHtml);
+    expect(links).toHaveLength(2);
+    expect(links[0]).toMatchObject({ title: "Run Sober on Linux", url: "https://example.com/sober" });
+  });
+
+  it("returns empty result list for non-html", () => {
+    expect(parseDdgResearch("<html>nothing here</html>")).toHaveLength(0);
+  });
+
+  it("returns empty string on a failed lookup", async () => {
+    const result = await researchLaunchCommand("__zzz_nothing_here__");
+    expect(result).toBe("");
+  }, 15000);
 });
 
 describe("installPackage", () => {

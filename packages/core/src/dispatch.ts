@@ -23,7 +23,7 @@ export function createDispatcher(_ctx: ExecContext = {}): Dispatcher {
             await openApp(intent.app, intent.search);
             return { ok: true, message: `Opened ${intent.app}${intent.search ? ` and searched "${intent.search}"` : ""}` };
           }
-          const launched = await launchApp(intent.app, intent.search);
+          const launched = await launchApp(intent.app, intent.search, { research: true });
           if (!launched.ok) return { ok: false, error: launched.message, message: launched.message };
           return { ok: true, message: `Opened ${intent.app}${intent.search ? ` and searched "${intent.search}"` : ""}` };
         }
