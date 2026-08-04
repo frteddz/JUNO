@@ -231,7 +231,9 @@ export function parseDdgResearch(html: string): ResearchLink[] {
   for (const block of html.matchAll(/<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)) {
     const title = block[2]!.replace(/<[^>]+>/g, "").trim();
     const url = decodeDdgLink(block[1] ?? "");
-    if (title && url.startsWith("http")) out.push({ title, url });
+    if (!title || !url.startsWith("http")) continue;
+    if (/ad_domain|y\.js|duckduckgo\.com\/y\.js/.test(url)) continue;
+    out.push({ title, url });
   }
   return out;
 }
@@ -247,18 +249,26 @@ function decodeDdgLink(href: string): string {
 }
 
 export async function researchLaunchCommand(app: string): Promise<string> {
-  const query = encodeURIComponent(`how to run ${app} on linux`);
-  const sources: Array<{ name: string; url: string; parse: (html: string) => ResearchLink[] }> = [
+  const query = `how to run ${app} on linux`;
+  const sources: Array<{ name: string; url: string; init: RequestInit; parse: (html: string) => ResearchLink[] }> = [
     {
       name: "duckduckgo",
-      url: `https://html.duckduckgo.com/html/?q=${query}`,
+      url: "https://html.duckduckgo.com/html/",
+      init: {
+        method: "POST",
+        headers: {
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        body: `q=${encodeURIComponent(query)}`,
+      },
       parse: parseDdgResearch,
     },
   ];
   for (const src of sources) {
     try {
       const res = await fetch(src.url, {
-        headers: { "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36" },
+        ...src.init,
         signal: AbortSignal.timeout(8000),
       });
       if (!res.ok) continue;
