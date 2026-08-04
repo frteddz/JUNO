@@ -1,6 +1,6 @@
 {
   "name": "@euthenia/automation",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": false,
   "type": "module",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@euthenia/core": "^0.3.0"
+    "@euthenia/core": "^0.3.1"
   },
   "devDependencies": {
     "tsup": "^8.4.0",

@@ -1,6 +1,6 @@
 {
   "name": "@euthenia/tui",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": false,
   "type": "module",
   "main": "./dist/index.js",
@@ -21,9 +21,9 @@
     "ink": "^7.1.1",
     "react": "^19.2.0",
     "zustand": "^5.0.0",
-    "@euthenia/ai": "^0.3.0",
-    "@euthenia/automation": "^0.3.0",
-    "@euthenia/core": "^0.3.0"
+    "@euthenia/ai": "^0.3.1",
+    "@euthenia/automation": "^0.3.1",
+    "@euthenia/core": "^0.3.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",
