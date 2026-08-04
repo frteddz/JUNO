@@ -263,51 +263,52 @@ export type DownloadResult = {
   suggest: string | null;
 };
 
-export async function installPackage(pkg: string): Promise<DownloadResult> {
+export async function installPackage(
+  pkg: string,
+  opts: { timeoutMs?: number } = {},
+): Promise<DownloadResult> {
+  const cmd = resolveInstallCommand(pkg);
+  if (!cmd) {
+    return {
+      ok: false,
+      command: "",
+      code: null,
+      stdout: "",
+      stderr: `No supported package manager found on this system. Install ${pkg} manually.`,
+      suggest: null,
+    };
+  }
+  return execInstall(cmd, opts);
+}
+
+export function resolveInstallCommand(pkg: string): string[] | null {
   if (terminalPlatform() === "windows") {
-    if (which("winget")) {
-      return execInstall(["winget", "install", "--accept-package-agreements", "--accept-source-agreements", pkg], pkg);
-    }
-    if (which("choco")) {
-      return execInstall(["choco", "install", "-y", pkg], pkg);
-    }
-    return noManager(pkg);
+    if (which("winget")) return ["winget", "install", "--accept-package-agreements", "--accept-source-agreements", pkg];
+    if (which("choco")) return ["choco", "install", "-y", pkg];
+    return null;
   }
-  if (which("apt-get")) {
-    return execInstall(["sudo", "-n", "apt-get", "install", "-y", pkg], pkg);
-  }
-  if (which("dnf")) {
-    return execInstall(["sudo", "-n", "dnf", "install", "-y", pkg], pkg);
-  }
-  if (which("pacman")) {
-    return execInstall(["sudo", "-n", "pacman", "-S", "--noconfirm", pkg], pkg);
-  }
-  if (which("flatpak")) {
-    return execInstall(["flatpak", "install", "-y", "--noninteractive", "flathub", pkg], pkg);
-  }
-  if (which("snap")) {
-    return execInstall(["snap", "install", pkg], pkg);
-  }
-  return noManager(pkg);
+  if (which("apt-get")) return ["sudo", "-n", "apt-get", "install", "-y", pkg];
+  if (which("dnf")) return ["sudo", "-n", "dnf", "install", "-y", pkg];
+  if (which("pacman")) return ["sudo", "-n", "pacman", "-S", "--noconfirm", pkg];
+  if (which("flatpak")) return ["flatpak", "install", "-y", "--noninteractive", "flathub", pkg];
+  if (which("snap")) return ["snap", "install", pkg];
+  return null;
 }
 
-function noManager(pkg: string): DownloadResult {
-  return {
-    ok: false,
-    command: "",
-    code: null,
-    stdout: "",
-    stderr: `No supported package manager found. Install ${pkg} manually.`,
-    suggest: null,
-  };
-}
-
-async function execInstall(cmd: string[], _pkg: string): Promise<DownloadResult> {
+async function execInstall(cmd: string[], opts: { timeoutMs?: number } = {}): Promise<DownloadResult> {
   const worker: ChildProcess = spawn(cmd[0]!, cmd.slice(1));
   let stdout = "";
   let stderr = "";
   worker.stdout?.on("data", (d: Buffer) => (stdout += d.toString()));
   worker.stderr?.on("data", (d: Buffer) => (stderr += d.toString()));
+  let timedOut = false;
+  const timer =
+    opts.timeoutMs && opts.timeoutMs > 0
+      ? setTimeout(() => {
+          timedOut = true;
+          stopWorker(worker);
+        }, opts.timeoutMs)
+      : undefined;
   const code = await new Promise<number | null>((resolve) => {
     worker.once("error", (err) => {
       stderr += `\n${err.message}`;
@@ -315,9 +316,10 @@ async function execInstall(cmd: string[], _pkg: string): Promise<DownloadResult>
     });
     worker.once("close", (c) => resolve(c));
   });
+  if (timer) clearTimeout(timer);
   const command = cmd.join(" ");
   return {
-    ok: code === 0,
+    ok: code === 0 && !timedOut,
     command,
     code,
     stdout: cap(stdout),

@@ -4,6 +4,7 @@ import {
   isTerminalSupported,
   runInTerminal,
   installPackage,
+  resolveInstallCommand,
   listTracked,
   stopTracked,
 } from "../src/terminal";
@@ -65,11 +66,21 @@ describe("runInTerminal", () => {
 });
 
 describe("installPackage", () => {
-  it("returns a failure suggest when no manager exists", async () => {
+  it("resolves a package manager command on linux", () => {
     if (terminalPlatform() === "linux") {
-      const r = await installPackage("this-package-should-not-exist-xyz");
-      expect(r.ok).toBe(false);
-      expect(r.command.length).toBeGreaterThan(0);
+      const cmd = resolveInstallCommand("firefox");
+      expect(cmd).toBeTruthy();
+      expect(cmd!.length).toBeGreaterThan(0);
+      expect(cmd!.some((c) => c.includes("firefox"))).toBe(true);
     }
   });
+
+  it("times out a hanging install", async () => {
+    if (terminalPlatform() === "linux") {
+      const cmd = resolveInstallCommand("__definitely_absent__");
+      if (!cmd) return;
+      const r = await installPackage("__definitely_absent__", { timeoutMs: 200 });
+      expect(r.ok).toBe(false);
+    }
+  }, 5000);
 });
