@@ -47,6 +47,8 @@ const PROTOCOL_PROMPT =
   "The JSON object uses this schema: " +
   '{ "intent": "open", "app": "firefox", "search": "ram prices" } | ' +
   '{ "intent": "close", "app": "spotify" } | ' +
+  '{ "intent": "terminal", "command": "npm run build", "label": "build" } | ' +
+  '{ "intent": "install", "package": "vlc" } | ' +
   '{ "intent": "timer", "durationMs": 600000, "label": "cooldown" } | ' +
   '{ "intent": "reminder", "at": "2026-08-03T12:00:00.000Z", "label": "take a break" } | ' +
   '{ "intent": "file.search", "path": "/home/teddz", "query": "mynotes.txt,md,zip" } | ' +
@@ -56,6 +58,9 @@ const PROTOCOL_PROMPT =
   '{ "intent": "sys.info" } | ' +
   '{ "intent": "help" }. "durationMs" must be a number of milliseconds. ' +
   '"at" must be an ISO 8601 UTC timestamp. "path" should be an absolute path or the user home. ' +
+  '"terminal" runs the command in the user\'s own terminal session; use it to launch or manage ' +
+  'console commands and long-running processes, and set "label" so the process can be closed later. ' +
+  '"install" installs a software package on the user\'s OS; use it to download and install software. ' +
   "For everything else (questions, explanations, conversation), reply normally in Markdown. " +
   "Do not mention the marker in prose replies.";
 

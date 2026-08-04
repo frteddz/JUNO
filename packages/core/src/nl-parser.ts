@@ -14,6 +14,10 @@ function firstMatch(input: string, re: RegExp): string | undefined {
   return (m[1] ?? m[2] ?? m[0]).trim();
 }
 
+function escapeRegExp(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function durationToMs(input: string): number | undefined {
   const m = /(\d+(?:\.\d+)?)\s*(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d)\b/i.exec(input);
   if (!m) return undefined;
@@ -176,6 +180,31 @@ export function parseCommand(input: string): ParseResult {
     if (/^[\d\s+\-*/().%^]+$/.test(expression)) return result({ intent: "calc", expression });
   }
 
+  if (/\b(?:run|execute)\s+\S+/i.test(lower) || /\b(?:terminal|shell)\b/.test(lower)) {
+    const raw = firstMatch(text, QUOTED) ?? firstMatch(text, /(?:run|execute)\s+(.+)/i);
+    if (raw) {
+      const command = stripQuotes(raw).trim();
+      if (command && !/\b(?:timer|remind)\b/.test(lower)) {
+        const label = (firstMatch(text, /\b(?:as|label|named|called)\s+(\S+)/i) ?? "").trim();
+        const clean = label
+          ? command.replace(new RegExp(`\\s+(?:as|label|named|called)\\s+${escapeRegExp(label)}\\s*$`, "i"), "")
+          : command;
+        return result({ intent: "terminal", command: clean, label: label || undefined });
+      }
+    }
+  }
+
+  if (/\b(?:install|download)\s+\S+/i.test(lower)) {
+    const raw = firstMatch(text, QUOTED) ?? firstMatch(text, /\b(?:install|download)\s+(.+)/i);
+    if (raw) {
+      const pkg = stripTrailingClause(stripQuotes(raw));
+      if (pkg && !/\b(?:timer|remind)\b/.test(lower)) {
+        const clean = pkg.replace(/^(?:the|a|an)\s+/i, "");
+        return result({ intent: "install", package: clean });
+      }
+    }
+  }
+
   if (/\b(?:help|what can you do|commands)\b/.test(lower)) {
     const topic = firstMatch(text, /\b(?:help|commands)\s+(.+)/i);
     return result({ intent: "help", topic });
@@ -206,6 +235,10 @@ export function describeIntent(intent: ParsedIntent): string {
       return `Calculate ${intent.expression}`;
     case "sys.info":
       return "System information";
+    case "terminal":
+      return `Run: ${intent.command}${intent.label ? ` (${intent.label})` : ""}`;
+    case "install":
+      return `Install ${intent.package}`;
     case "help":
       return `Help${intent.topic ? `: ${intent.topic}` : ""}`;
     default:

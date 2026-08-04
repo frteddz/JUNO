@@ -8,6 +8,21 @@ import { listDir, readTextFile, searchFiles, type FileEntry } from "./files.js";
 import { parseCommand, describeIntent, type ParseResult } from "./nl-parser.js";
 import { getSystemInfo, type SystemInfo } from "./system.js";
 import {
+  launchApp,
+  runInTerminal,
+  stopTracked,
+  listTracked,
+  installPackage,
+  resolveLaunchSpec,
+  terminalPlatform,
+  isTerminalSupported,
+  type TerminalPlatform,
+  type TerminalRunResult,
+  type TrackedProcess,
+  type LaunchSpec,
+  type DownloadResult,
+} from "./terminal.js";
+import {
   DEFAULT_CONFIG,
   IntentSchema,
   type ActionResult,
@@ -33,6 +48,11 @@ export type {
   ChatMessage,
   TimerTask,
   ReminderTask,
+  TerminalPlatform,
+  TerminalRunResult,
+  TrackedProcess,
+  LaunchSpec,
+  DownloadResult,
 };
 
 export {
@@ -55,6 +75,14 @@ export {
   parseCommand,
   describeIntent,
   getSystemInfo,
+  launchApp,
+  runInTerminal,
+  stopTracked,
+  listTracked,
+  installPackage,
+  resolveLaunchSpec,
+  terminalPlatform,
+  isTerminalSupported,
   DEFAULT_CONFIG,
   IntentSchema,
   createDispatcher,

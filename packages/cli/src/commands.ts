@@ -11,6 +11,8 @@ import {
   saveConfig,
   openApp,
   closeApp,
+  runInTerminal,
+  installPackage,
   createEventBus,
   type JunoEventBus,
 } from "@euthenia/core";
@@ -22,7 +24,7 @@ export function makeProgram(bus?: JunoEventBus): Command {
   const program = new Command();
   program
     .name("juno")
-    .version("0.2.0")
+    .version("0.3.0")
     .description("JUNO - Just Understands Natural Orders. A local-first command assistant.")
     .option("--json", "output JSON for scripting")
     .exitOverride();
@@ -119,6 +121,45 @@ export function makeProgram(bus?: JunoEventBus): Command {
       const account = await engine.whoami();
       console.log(chalk.green(`Signed in as ${account ?? "your DeepSeek account"}. AI is ready.`));
       await engine.close();
+    });
+
+  program
+    .command("run <command>")
+    .description("Run a shell command in your terminal session")
+    .option("-l, --label <label>", "label the process so it can be closed later")
+    .action(async (command: string, opts: { label?: string }) => {
+      const result = await runInTerminal(command, { label: opts.label });
+      const output = [result.stdout, result.stderr].filter(Boolean).join("\n");
+      if (program.opts().json) {
+        console.log(JSON.stringify({ ok: result.ok, code: result.code, output, timedOut: result.timedOut }));
+        return;
+      }
+      if (output) console.log(output);
+      if (result.timedOut) {
+        console.error(chalk.red("Timed out."));
+        process.exitCode = 2;
+      } else if (result.code !== 0) {
+        process.exitCode = result.code ?? 2;
+      }
+    });
+
+  program
+    .command("install <package>")
+    .description("Install a software package using your OS package manager")
+    .action(async (pkg: string) => {
+      const result = await installPackage(pkg);
+      const output = [result.stdout, result.stderr].filter(Boolean).join("\n");
+      if (program.opts().json) {
+        console.log(JSON.stringify({ ok: result.ok, command: result.command, code: result.code, output }));
+        return;
+      }
+      if (output) console.log(output);
+      if (result.ok) {
+        console.log(chalk.green(`Installed ${pkg} via ${result.command}`));
+      } else {
+        console.error(chalk.red(result.suggest ?? "Install failed"));
+        process.exitCode = result.code ?? 2;
+      }
     });
 
   program

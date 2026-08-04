@@ -123,6 +123,42 @@ describe("parseCommand", () => {
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.intent).toMatchObject({ intent: "timer", durationMs: 5 * 60_000 });
   });
+
+  it("parses run into a terminal intent", () => {
+    const r = parseCommand("run npm run build");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "terminal", command: "npm run build" });
+  });
+
+  it("parses terminal intent from quoted command", () => {
+    const r = parseCommand('execute "python3 myscript.py"');
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "terminal", command: "python3 myscript.py" });
+  });
+
+  it("parses terminal intent with a label", () => {
+    const r = parseCommand("run livereload-server as reload");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "terminal", command: "livereload-server", label: "reload" });
+  });
+
+  it("parses install into an install intent", () => {
+    const r = parseCommand("install vlc");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "install", package: "vlc" });
+  });
+
+  it("parses download into an install intent", () => {
+    const r = parseCommand("download audacity");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "install", package: "audacity" });
+  });
+
+  it("keeps timer keywords out of terminal intent", () => {
+    const r = parseCommand("run a 5 minute timer");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.intent).toMatchObject({ intent: "timer", durationMs: 5 * 60_000 });
+  });
 });
 
 describe("calculate", () => {

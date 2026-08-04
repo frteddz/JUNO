@@ -8,6 +8,8 @@ export const SUBCOMMANDS = new Set([
   "open",
   "close",
   "read",
+  "run",
+  "install",
   "timer",
   "info",
   "config",

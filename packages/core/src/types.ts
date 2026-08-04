@@ -12,6 +12,13 @@ export const IntentSchema = z.discriminatedUnion("intent", [
   z.object({ intent: z.literal("calc"), expression: z.string().min(1) }),
   z.object({ intent: z.literal("sys.info") }),
   z.object({ intent: z.literal("help"), topic: z.string().optional() }),
+  z.object({
+    intent: z.literal("terminal"),
+    command: z.string().min(1),
+    label: z.string().optional(),
+    cwd: z.string().optional(),
+  }),
+  z.object({ intent: z.literal("install"), package: z.string().min(1) }),
 ]);
 
 export type ParsedIntent = z.infer<typeof IntentSchema>;
