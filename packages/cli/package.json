@@ -1,6 +1,6 @@
 {
   "name": "@euthenia/juno",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": false,
   "type": "module",
   "main": "./dist/index.js",
@@ -28,10 +28,10 @@
   "dependencies": {
     "commander": "^13.0.0",
     "chalk": "^5.4.0",
-    "@euthenia/ai": "^0.3.1",
-    "@euthenia/core": "^0.3.1",
-    "@euthenia/automation": "^0.3.1",
-    "@euthenia/tui": "^0.3.1"
+    "@euthenia/ai": "^0.3.2",
+    "@euthenia/core": "^0.3.2",
+    "@euthenia/automation": "^0.3.2",
+    "@euthenia/tui": "^0.3.2"
   },
   "devDependencies": {
     "tsup": "^8.4.0",

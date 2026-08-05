@@ -24,7 +24,7 @@ export function makeProgram(bus?: JunoEventBus): Command {
   const program = new Command();
   program
     .name("juno")
-    .version("0.3.1")
+    .version("0.3.2")
     .description("JUNO - Just Understands Natural Orders. A local-first command assistant.")
     .option("--json", "output JSON for scripting")
     .exitOverride();

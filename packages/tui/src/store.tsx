@@ -13,6 +13,7 @@ type AppState = {
   scrollTop: number;
   follow: boolean;
   sidebar: boolean;
+  maxScroll: number;
   addMessage: (msg: ChatMessage) => void;
   updateMessage: (id: string, patch: Partial<ChatMessage>) => void;
   clear: () => void;
@@ -24,6 +25,7 @@ type AppState = {
   setScrollTop: (n: number) => void;
   setFollow: (b: boolean) => void;
   setSidebar: (b: boolean) => void;
+  setMaxScroll: (n: number) => void;
 };
 
 export const useApp = create<AppState>((set) => ({
@@ -36,6 +38,7 @@ export const useApp = create<AppState>((set) => ({
   scrollTop: 0,
   follow: true,
   sidebar: true,
+  maxScroll: 0,
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
   updateMessage: (id, patch) =>
     set((s) => ({ messages: s.messages.map((m) => (m.id === id ? { ...m, ...patch } : m)) })),
@@ -48,4 +51,5 @@ export const useApp = create<AppState>((set) => ({
   setScrollTop: (scrollTop) => set({ scrollTop }),
   setFollow: (follow) => set({ follow }),
   setSidebar: (sidebar) => set({ sidebar }),
+  setMaxScroll: (maxScroll) => set({ maxScroll }),
 }));

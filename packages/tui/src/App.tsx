@@ -1,5 +1,5 @@
-import { Box, Text, useInput, useStdout } from "ink";
-import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { Box, Text, useInput, useStdout, useBoxMetrics, type DOMElement } from "ink";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { Markdown } from "./markdown.js";
 import { Banner } from "./banner.js";
 import {
@@ -42,6 +42,7 @@ export function App({ bus }: Props): ReactElement {
   const accent = useApp((s) => s.accent);
   const theme = useApp((s) => s.theme);
   const sidebar = useApp((s) => s.sidebar);
+  const maxScroll = useApp((s) => s.maxScroll);
   const setInput = useApp((s) => s.setInput);
   const setScrollTop = useApp((s) => s.setScrollTop);
   const setFollow = useApp((s) => s.setFollow);
@@ -78,9 +79,6 @@ export function App({ bus }: Props): ReactElement {
   const wrapW = Math.max(10, chatW - 6);
   const composerH = Math.min(8, wrapText(input, wrapW).length) + 2;
   const viewH = Math.max(1, height - HEADER_H - composerH - FOOTER_H - 1);
-
-  const contentH = useMemo(() => heightsOf(messages, chatW).reduce((a, b) => a + b, 0), [messages, chatW]);
-  const maxScroll = Math.max(0, contentH - viewH);
 
   const scrollChat = (delta: number): void => {
     const st = useApp.getState();
@@ -205,12 +203,17 @@ useApp.getState().addMessage(createMessage(getStore().createSession().id, "user"
       setScrollTop(0);
       return;
     }
-    if (key.return) {
+    if (key.return || raw.endsWith("\r") || raw.endsWith("\n")) {
       if (key.shift) {
         insert("\n");
-      } else {
-        submit();
+        return;
       }
+      if ((raw.endsWith("\r") || raw.endsWith("\n")) && raw.length > 1) {
+        for (const ch of raw.slice(0, -1)) {
+          if (ch.charAt(0) >= " ") insert(ch);
+        }
+      }
+      submit();
       return;
     }
     if (key.backspace) {
@@ -381,31 +384,23 @@ function ChatView({ width, height, t }: { width: number; height: number; t: Them
   const scrollTop = useApp((s) => s.scrollTop);
   const follow = useApp((s) => s.follow);
   const setScrollTop = useApp((s) => s.setScrollTop);
+  const setMaxScroll = useApp((s) => s.setMaxScroll);
 
-  const bubbleW = Math.max(10, width - 6);
-  const heights = useMemo(() => heightsOf(messages, width), [messages, width]);
-  const contentH = heights.reduce((a, b) => a + b, 0);
+  const contentRef = useRef<DOMElement | null>(null);
+  const { height: contentH } = useBoxMetrics(contentRef);
   const maxScroll = Math.max(0, contentH - height);
   const scroll = follow ? maxScroll : Math.min(scrollTop, maxScroll);
 
-  let topPad = scroll;
-  let start = 0;
-  for (let i = 0; i < messages.length; i++) {
-    const h = heights[i] ?? 0;
-    if (topPad >= h) {
-      topPad -= h;
-      start = i + 1;
-    } else break;
-  }
-  let renderedH = 0;
-  for (let i = start; i < messages.length; i++) renderedH += heights[i] ?? 0;
-  const bottomPad = Math.max(0, height - topPad - renderedH);
+  const bubbleW = Math.max(10, width - 6);
+  const last = messages[messages.length - 1];
+  const msgEls = messages.map((m) => (
+    <Message key={m.id} m={m} width={bubbleW} accent={accent} t={t} thinking={busy && m === last && m.content === ""} />
+  ));
 
   useEffect(() => {
+    setMaxScroll(maxScroll);
     if (follow) setScrollTop(maxScroll);
-  }, [maxScroll, follow, setScrollTop]);
-
-  const last = messages[messages.length - 1];
+  }, [maxScroll, follow, setScrollTop, setMaxScroll]);
 
   return (
     <Box flexDirection="column" width={width} height={height} overflow="hidden">
@@ -414,11 +409,12 @@ function ChatView({ width, height, t }: { width: number; height: number; t: Them
           ↑ older · PgUp/PgDn · End to jump to bottom
         </Text>
       )}
-      <Box height={topPad} flexShrink={0} />
-      {messages.slice(start).map((m) => (
-        <Message key={m.id} m={m} width={bubbleW} accent={accent} t={t} thinking={busy && m === last && m.content === ""} />
-      ))}
-      <Box height={bottomPad} flexShrink={0} />
+      <Box flexDirection="column" position="absolute" top={0} left={-9999} ref={contentRef} width={width}>
+        {msgEls}
+      </Box>
+      <Box flexDirection="column" marginTop={-scroll} marginBottom={Math.max(0, height - (contentH - scroll))}>
+        {msgEls}
+      </Box>
     </Box>
   );
 }
@@ -674,17 +670,6 @@ function useElapsed(busy: boolean): number {
     return () => clearInterval(timer);
   }, [busy]);
   return el;
-}
-
-function heightsOf(messages: ChatMessage[], width: number): number[] {
-  const w = Math.max(10, width - 6);
-  return messages.map((m) => {
-    let lines = 0;
-    for (const raw of m.content.split("\n")) {
-      lines += Math.max(1, Math.ceil(raw.length / w));
-    }
-    return lines + 2;
-  });
 }
 
 function wrapText(text: string, width: number): string[] {
